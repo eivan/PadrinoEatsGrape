@@ -5,32 +5,37 @@ module APIS
     module Global
     
       class API_v1 < Grape::API
+        prefix 'global'
+        default_format :json
+        error_format :json
         version 'v1', :using => :header, :vendor => 'global', :format => :json
         
-        rescue_from :all do |e|
-          logger.error "API << #{env['REQUEST_METHOD']} #{env['PATH_INFO']}; errors: #{e.message}"
-          rack_response({ error: e.class.name, message: e.message })
+        before do
+          header['Access-Control-Allow-Origin'] = '*'
+          header['Access-Control-Request-Method'] = '*'
+        end
+        
+        rescue_from :all do |error|
+          logger.error "API << #{env['REQUEST_METHOD']} #{env['PATH_INFO']} -- #{error.class.name} -- #{error.message}"
+          logger.info "API << Last error's backtrace:\n#{error.backtrace.join("\n")}"
+          
+          json = { error: error.class.name, message: error.message }.to_json
+          code = 500
+          
+          headers = 
+          {
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Request-Method' => '*'
+          }
+          
+          rack_response(json, code, headers)
         end
         
         resource :users do
           crud MyApp::User, :user
         end
-        
-        desc "Documentates api"
-        get :doc do
-          {
-            versions: APIS::Vendors::Global::API_v1.versions,
-            routes: APIS::Vendors::Global::API_v1.routes.map do |route|
-              route_path = route.route_path.gsub('(.:format)', '').gsub(':version', route.route_version)
-              {
-                route: "#{route.route_method} #{route_path}",
-                desc: "#{route.route_description}",
-                params: route.route_params
-              }
-            end
-          }
-        end
-        
+
         get :any do
           logger.error "API << #{env['REQUEST_METHOD']} #{env['PATH_INFO']}; errors: Not Found"
           error!({message: "#{env['REQUEST_METHOD']} #{env['PATH_INFO']}", errors: "Not Found"},404)

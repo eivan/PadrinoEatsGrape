@@ -11,7 +11,7 @@ module APIS
     
       def dependencies
         @_dependencies ||= [
-          "vendors/**/version_*.rb", "helpers/*.rb", "helpers.rb"
+          "helpers/*.rb", "helpers.rb", "vendors/**/version_*.rb", "vendors/**/version_*/*.rb"
         ].map { |file| Dir[File.join(self.root, file)] }.flatten
       end
       
@@ -41,6 +41,11 @@ module APIS
 
     ## TODO find a better way than this    
     mount ::APIS::Vendors::Global::API_v1
+
+    add_swagger_documentation mount_path: "/swagger", base_path: "http://localhost:3000/api", api_version: "v1"
+    
+    #http://petstore.swagger.wordnik.com/
+    # <== http://localhost:3000/api/swagger/global
 
   end
 

@@ -1,6 +1,11 @@
 PadrinoEatsGrape
 ================
 
+Sample project skeleton for the great API framework Grape, having built into Padrino framework nicely.
+
+Padrino took the Grape.
+Please fork this repo and feel free to add your extensions to it!
+
 ## Structure
 
 Example:
@@ -21,4 +26,10 @@ Your Padrino app could include an 'api' directori for the Grape API in its root.
 Add this line:
 
     Padrino.mount("API", :app_class => "Genie3::API").to('/api')
+
+## Gemfile
+
+    gem "grape",         git: "http://github.com/intridea/grape.git", :branch => "frontier"
+    gem 'grape-swagger', git: "https://github.com/tim-vandecasteele/grape-swagger.git"
+
 
